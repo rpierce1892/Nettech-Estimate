@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>NetTech Multi-Tier Estimate</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { max-width: 100%; overflow-x: hidden; }
@@ -119,8 +120,6 @@ table.qt tbody tr:not(.cat-row) td:nth-child(4) { font-family: 'Montserrat', san
       <div class="btnbar">
         <button class="hbtn ghost" onclick="window.clearState()">New Estimate</button>
         <button class="hbtn solid" id="save-btn" onclick="window.saveData()">Save</button>
-        <button class="hbtn ghost" id="load-btn" onclick="document.getElementById('load-input').click()">Load</button>
-        <input type="file" id="load-input" accept=".json,application/json" style="display:none" onchange="window.loadData(event)">
       </div>
     </div>
   </div>
@@ -589,38 +588,25 @@ window.clearState = function(){
 };
 
 window.saveData = function(){
-  const payload = collectState(); payload.savedAt = new Date().toISOString();
   const company=(document.getElementById('f-company').value||'Estimate').trim();
   const date=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');
-  const filename=company+' - '+date+'.json';
-  const jsonStr=JSON.stringify(payload,null,2);
+  const filename=company+' - '+date+'.pdf';
   const btn=document.getElementById('save-btn');
   function flash(m){ btn.textContent=m; setTimeout(()=>btn.textContent='Save',2000); }
-  try{
-    const file=new File([jsonStr],filename,{type:'application/json'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      navigator.share({files:[file],title:filename}).then(()=>flash('Saved!')).catch(err=>{ if(err&&err.name==='AbortError')return; dl(); });
-      return;
-    }
-  }catch(e){}
-  dl();
-  function dl(){
-    const blob=new Blob([jsonStr],{type:'application/json'}); const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),1000); flash('Saved!');
-  }
-};
-
-window.loadData = function(event){
-  const file=event.target.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    try{ applyState(JSON.parse(e.target.result)); saveState();
-      const btn=document.getElementById('load-btn'); btn.textContent='Loaded!'; setTimeout(()=>btn.textContent='Load',2000);
-    }catch(err){ alert('Could not read that file. Make sure it is an estimate .json file.'); }
-    event.target.value='';
+  const el=document.querySelector('.page');
+  const barEl=document.querySelector('.btnbar');
+  barEl.style.visibility='hidden';
+  const opt = {
+    margin: 0,
+    filename: filename,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
-  reader.readAsText(file);
+  btn.textContent='Generating...';
+  html2pdf().set(opt).from(el).save()
+    .then(()=>{ barEl.style.visibility='visible'; flash('Saved!'); })
+    .catch(()=>{ barEl.style.visibility='visible'; flash('Error'); });
 };
 
 loadState();
