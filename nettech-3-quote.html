@@ -107,6 +107,8 @@ table.qt tbody tr:not(.cat-row) td:nth-child(4) { font-family: 'Montserrat', san
   .btnbar { display:none !important; }
   .card { page-break-inside:avoid; box-shadow:none; }
 }
+.ctable tr, .qt tr, tr { page-break-inside: avoid; break-inside: avoid; }
+.card { page-break-inside: avoid; break-inside: avoid; }
 </style>
 </head>
 <body>
@@ -601,7 +603,8 @@ window.saveData = function(){
     filename: filename,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'] }
   };
   btn.textContent='Generating...';
   html2pdf().set(opt).from(el).save()
