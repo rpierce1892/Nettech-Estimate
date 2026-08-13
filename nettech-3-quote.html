@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NetTech Multi-Tier Estimate</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { max-width: 100%; overflow-x: hidden; }
+body { font-family: 'Open Sans', sans-serif; background: #eef0ed; display: flex; justify-content: center; padding: 16px 0; min-height: 100vh; }
+.page { width: 100%; max-width: 860px; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 24px rgba(0,0,0,0.13); }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px 10px; border-bottom: 3px solid #6BBF4E; }
+.doc-label { text-align: right; }
+.doc-label h1 { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #2c2c2c; }
+.doc-label .date { font-size: 10px; color: #999; margin-top: 2px; }
+.btnbar { display:flex; gap:6px; justify-content:flex-end; margin-top:4px; }
+.hbtn { font-family:'Montserrat',sans-serif; font-weight:700; font-size:8px; letter-spacing:1px; text-transform:uppercase; padding:3px 8px; border-radius:3px; cursor:pointer; }
+.hbtn.ghost { background:#fff; color:#5a9e3a; border:1.5px solid #dde8d8; }
+.hbtn.solid { background:#6BBF4E; color:#fff; border:none; }
+
+.client-bar { background: #f3f8f0; padding: 8px 20px; border-bottom: 1px solid #dde8d8; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.client-bar .row3 { grid-column: 1 / -1; }
+.field label { display: block; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #5a9e3a; margin-bottom: 2px; }
+.field input { width: 100%; border: none; border-bottom: 1.5px solid #b5d9a2; background: transparent; font-family: 'Open Sans', sans-serif; font-size: 11px; color: #2c2c2c; padding: 2px 0; outline: none; }
+.field input::placeholder { color: #ccc; }
+.field input:focus { border-bottom-color: #6BBF4E; }
+
+.section { padding: 8px 20px; border-bottom: 1px solid #dde8d8; }
+.section-title { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #5a9e3a; margin-bottom: 6px; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+
+.env-card { background: #f7faf5; border: 1.5px solid #dde8d8; border-radius: 4px; padding: 5px 8px; }
+.env-card:focus-within { border-color: #6BBF4E; }
+.env-card label { display: block; font-family: 'Montserrat', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #999; margin-bottom: 1px; line-height: 1.3; }
+.env-card .sublabel { font-size: 7px; color: #b0ccaa; font-style: italic; margin-bottom: 2px; }
+.env-card input { border: none; background: transparent; font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 700; color: #4e9e34; width: 100%; outline: none; -moz-appearance: textfield; }
+.env-card input::-webkit-outer-spin-button, .env-card input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* ---- separated cards ---- */
+.block-wrap { padding: 4px 20px 8px; }
+.card { border: 1px solid #dde8d8; border-radius: 10px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin: 14px 0; overflow: hidden; }
+.card.compare-card { background: #fafcf8; }
+.card-head { font-family:'Montserrat',sans-serif; font-weight:800; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#fff; padding:9px 16px; }
+.card-body { padding: 12px 16px 14px; }
+
+/* Comparison chart */
+.ctable { width:100%; border-collapse:collapse; font-size:10px; }
+.ctable th, .ctable td { padding:4px 6px; text-align:center; border-bottom:1px solid #eef1ec; }
+.ctable th.feat, .ctable td.feat { text-align:left; font-size:9px; color:#3a3a3a; width:40%; }
+.ctable thead th { font-family:'Montserrat',sans-serif; font-weight:800; font-size:8px; letter-spacing:0.5px; text-transform:uppercase; color:#fff; padding:6px 6px; vertical-align:middle; }
+.ctable thead th.feat { background:#2c2c2c; color:#fff; }
+.col1 { background:#4e9e34; }
+.col2 { background:#6BBF4E; }
+.col3 { background:#8dcf6f; }
+.ctable thead th .price { display:block; font-size:11px; font-weight:800; margin-top:2px; }
+.ctable thead th .star { color:#ffd23f; font-size:11px; }
+.chk { color:#4e9e34; font-weight:700; }
+.dash { color:#ccc; }
+.opt { color:#b8860b; font-size:8px; font-style:italic; }
+.txtcell { font-size:8px; color:#555; font-weight:600; }
+.cat-band td { background:#eef4ea; font-family:'Montserrat',sans-serif; font-weight:700; font-size:7px; letter-spacing:1px; text-transform:uppercase; color:#5a9e3a; text-align:left; padding:3px 6px; }
+
+/* Quotes */
+.quote-head { display:flex; align-items:baseline; justify-content:space-between; }
+.quote-head .qname { font-family:'Montserrat',sans-serif; font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+.quote-head .qbadge { font-family:'Montserrat',sans-serif; font-size:7px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#fff; padding:2px 6px; border-radius:3px; }
+.qsub { font-size:9px; color:#999; margin:2px 0 8px; font-style:italic; }
+table.qt { width: 100%; border-collapse: collapse; font-size: 11px; }
+table.qt thead tr { background: #2c2c2c; }
+table.qt thead th { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #fff; padding: 5px 8px; text-align: left; }
+table.qt thead th:nth-child(2), table.qt thead th:nth-child(3), table.qt thead th:nth-child(4) { text-align: right; }
+table.qt .cat-row td { background: #f3f8f0; font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a9e3a; padding: 3px 8px; border-top: 1px solid #dde8d8; }
+table.qt tbody tr:not(.cat-row) { border-bottom: 1px solid #f0f0f0; }
+table.qt tbody tr:not(.cat-row) td { padding: 4px 8px; color: #2c2c2c; vertical-align: middle; }
+table.qt tbody tr:not(.cat-row) td:nth-child(2), table.qt tbody tr:not(.cat-row) td:nth-child(3), table.qt tbody tr:not(.cat-row) td:nth-child(4) { text-align: right; }
+table.qt tbody tr:not(.cat-row) td:nth-child(4) { font-family: 'Montserrat', sans-serif; font-weight: 600; color: #4e9e34; }
+.opt-row td { color:#b8860b !important; font-style:italic; }
+.note-row td { color:#999 !important; font-style:italic; font-size:9px; }
+.editable-price { border: none; border-bottom: 1px dashed #b5d9a2; background: transparent; font-family: 'Open Sans', sans-serif; font-size: 11px; color: #2c2c2c; text-align: right; width: 60px; outline: none; padding: 1px 0; }
+.editable-price:focus { border-bottom-color: #6BBF4E; color: #4e9e34; }
+.incl { color:#4e9e34; font-weight:700; }
+
+.totals { padding: 10px 0 2px; }
+.totals-wrap { display: flex; flex-direction: column; gap: 3px; }
+.totals-row1 { display: flex; border-radius: 6px; overflow: hidden; }
+.totals-row2 { border-radius: 6px; overflow: hidden; background: #4e9e34; }
+.total-cell { flex: 1; padding: 9px 12px; text-align: center; background: #2c2c2c; }
+.total-cell.secondary { border-left: 1px solid rgba(255,255,255,0.1); }
+.total-cell-wide { padding: 9px 12px; text-align: center; }
+.t-label { font-family: 'Montserrat', sans-serif; font-size: 7px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 3px; }
+.t-amount { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 18px; color: #6BBF4E; line-height: 1; }
+.t-note { font-size: 8px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+.footer { border-top: 1px solid #eee; padding: 8px 20px; display: flex; justify-content: space-between; align-items: center; }
+.footer .disclaimer { font-size: 8px; color: #bbb; font-style: italic; }
+.footer .brand { font-family: 'Montserrat', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; color: #6BBF4E; }
+
+@media print {
+  body { background:white !important; padding:0 !important; }
+  .page { max-width:100% !important; box-shadow:none !important; }
+  .btnbar { display:none !important; }
+  .card { page-break-inside:avoid; box-shadow:none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="logo"><span style="font-family:'Montserrat',sans-serif;font-size:24px;font-weight:800;letter-spacing:0.5px;color:#7ab63f;">nettech</span></div>
+    <div class="doc-label">
+      <h1>Budgetary Estimate</h1>
+      <div class="date" id="est-date"></div>
+      <div class="btnbar">
+        <button class="hbtn ghost" onclick="window.clearState()">New Estimate</button>
+        <button class="hbtn solid" id="save-btn" onclick="window.saveData()">Save</button>
+        <button class="hbtn ghost" id="load-btn" onclick="document.getElementById('load-input').click()">Load</button>
+        <input type="file" id="load-input" accept=".json,application/json" style="display:none" onchange="window.loadData(event)">
+      </div>
+    </div>
+  </div>
+
+  <div class="client-bar">
+    <div class="field"><label>Company Name</label><input type="text" placeholder="Enter company name" id="f-company"></div>
+    <div class="field"><label>Point of Contact</label><input type="text" placeholder="Full name" id="f-contact"></div>
+    <div class="field"><label>Phone</label><input type="tel" placeholder="(000) 000-0000" id="f-phone"></div>
+    <div class="field"><label>Email</label><input type="email" placeholder="email@company.com" id="f-email"></div>
+    <div class="field row3"><label>Address</label><input type="text" placeholder="Street, City, State" id="f-address"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Environment</div>
+    <div class="grid-3">
+      <div class="env-card"><label>Locations</label><input type="number" id="i-loc" value="1" min="0"></div>
+      <div class="env-card"><label>Full Managed Users</label><input type="number" id="i-full" value="0" min="0"></div>
+      <div class="env-card"><label>Remote Users</label><input type="number" id="i-remote" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Devices</div>
+    <div class="grid-3">
+      <div class="env-card"><label>Laptops</label><input type="number" id="i-laptops" value="0" min="0"></div>
+      <div class="env-card"><label>Desktops</label><input type="number" id="i-desktops" value="0" min="0"></div>
+      <div class="env-card"><label>Servers</label><input type="number" id="i-servers" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Microsoft 365 (seat count · SKU set per tier)</div>
+    <div class="grid-4">
+      <div class="env-card"><label>Primary Seats</label><div class="sublabel">Premium / Standard</div><input type="number" id="i-premium" value="0" min="0"></div>
+      <div class="env-card"><label>Extra Standard</label><div class="sublabel">$15.00 / user</div><input type="number" id="i-standard" value="0" min="0"></div>
+      <div class="env-card"><label>Apps for Business</label><div class="sublabel">$8.00 / user</div><input type="number" id="i-apps" value="0" min="0"></div>
+      <div class="env-card"><label>Exchange Online</label><div class="sublabel">$5.00 / user</div><input type="number" id="i-exchange" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Security</div>
+    <div class="grid-3" style="margin-bottom:6px;">
+      <div class="env-card"><label>Huntress EDR</label><div class="sublabel">$6 · all devices</div><input type="number" id="i-hav" value="0" min="0"></div>
+      <div class="env-card"><label>Huntress SIEM</label><div class="sublabel">$3 · all devices</div><input type="number" id="i-hsiem" value="0" min="0"></div>
+      <div class="env-card"><label>Duo MFA</label><div class="sublabel">$3 · optional T2/T3</div><input type="number" id="i-duo" value="0" min="0"></div>
+    </div>
+    <div class="grid-3">
+      <div class="env-card"><label>Huntress M365</label><div class="sublabel">$2 · total users</div><input type="number" id="i-hm365" value="0" min="0"></div>
+      <div class="env-card"><label>Huntress SAT</label><div class="sublabel">$2.50 · optional T2/T3</div><input type="number" id="i-hsat" value="0" min="0"></div>
+      <div class="env-card"><label>Proofpoint</label><div class="sublabel">$3.50 · total O365</div><input type="number" id="i-pp" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Backup</div>
+    <div class="grid-5">
+      <div class="env-card"><label>DropSuite</label><div class="sublabel">$3 · optional T2/T3</div><input type="number" id="i-ds" value="0" min="0"></div>
+      <div class="env-card"><label>Veeam Lic</label><div class="sublabel">$20.00 / mo</div><input type="number" id="i-veeam-lic" value="0" min="0"></div>
+      <div class="env-card"><label>Veeam Storage</label><div class="sublabel">$50.00 / TB</div><input type="number" id="i-veeam-tb" value="0" min="0"></div>
+      <div class="env-card"><label>Axcient Servers</label><div class="sublabel">$150.00 / mo</div><input type="number" id="i-axcient-srv" value="0" min="0"></div>
+      <div class="env-card"><label>Axcient Workstations</label><div class="sublabel">$30.00 / mo</div><input type="number" id="i-axcient-ws" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Voice</div>
+    <div class="grid-5">
+      <div class="env-card"><label>Handsets</label><div class="sublabel">$239.00 / unit</div><input type="number" id="i-handsets" value="0" min="0"></div>
+      <div class="env-card"><label>Extensions</label><div class="sublabel">$45.00 / ext</div><input type="number" id="i-ext" value="0" min="0"></div>
+      <div class="env-card"><label>Text</label><div class="sublabel">$30.00 / mo</div><input type="number" id="i-text" value="0" min="0"></div>
+      <div class="env-card"><label>Fax</label><div class="sublabel">$45.00 / mo</div><input type="number" id="i-fax" value="0" min="0"></div>
+      <div class="env-card"><label>Toll Number</label><div class="sublabel">$30.00 / mo</div><input type="number" id="i-toll" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Support Hours</div>
+    <div class="grid-3">
+      <div class="env-card"><label>Tier 2 Onsite Hours</label><div class="sublabel">$140/hr recurring · $185 OT</div><input type="number" id="i-onsite2" value="0" min="0"></div>
+      <div class="env-card"><label>Tier 3 Block Hours</label><div class="sublabel">$140/hr recurring · $185 OT</div><input type="number" id="i-block3" value="7" min="0"></div>
+      <div class="env-card" style="visibility:hidden"></div>
+    </div>
+  </div>
+
+  <!-- COMPARISON + QUOTES -->
+  <div class="block-wrap">
+
+    <div class="card compare-card">
+      <div class="card-head" style="background:#2c2c2c;">Plan Comparison</div>
+      <div class="card-body">
+        <table class="ctable">
+          <thead>
+            <tr>
+              <th class="feat">What's Included</th>
+              <th class="col1"><span class="star">&#9733;</span> Fully Managed<span class="price" id="c-price-1">$0</span></th>
+              <th class="col2">Remote Support<span class="price" id="c-price-2">$0</span></th>
+              <th class="col3">Co-Managed<span class="price" id="c-price-3">$0</span></th>
+            </tr>
+          </thead>
+          <tbody id="compare-body"></tbody>
+        </table>
+        <div style="font-size:8px;color:#999;font-style:italic;margin-top:8px;">&#9733; = recommended &nbsp;·&nbsp; prices are estimated monthly recurring</div>
+      </div>
+    </div>
+
+    <div id="quotes"></div>
+
+  </div>
+
+  <div class="footer">
+    <div class="disclaimer">Budgetary estimate only. Final pricing subject to formal agreement.</div>
+    <div class="brand">NETTECH</div>
+  </div>
+
+</div>
+<script>
+document.getElementById('est-date').textContent = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+function fmt(n){ return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function fmt0(n){ return '$'+Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+function parseFmt(s){ return parseFloat(String(s).replace(/[^0-9.]/g,''))||0; }
+
+const overridden = { premium:false, hav:false, hsiem:false, hm365:false, hsat:false, pp:false, duo:false, ds:false };
+const focused    = { premium:false, hav:false, hsiem:false, hm365:false, hsat:false, pp:false, duo:false, ds:false };
+function watchField(id, key){
+  const el = document.getElementById(id);
+  el.addEventListener('focus', ()=>{ focused[key]=true; overridden[key]=true; });
+  el.addEventListener('blur', function(){ focused[key]=false; if(this.value===''){ overridden[key]=false; calc(); } });
+}
+['premium','hav','hsiem','hm365','hsat','pp','duo','ds'].forEach(k=>watchField('i-'+k,k));
+
+let savedPrices = {};
+let laborManual = { t1:false, t2:false, t3:false };
+
+const TIERS = [
+  { key:'t1', name:'Fully Managed IT', accent:'#4e9e34', sub:'Unlimited onsite & remote support · full security stack', m365:'premium', fullStack:true, model:'full' },
+  { key:'t2', name:'Remote Support',   accent:'#6BBF4E', sub:'Unlimited remote · onsite hours at $140/hr · essentials only', m365:'standard', fullStack:false, model:'remote' },
+  { key:'t3', name:'Co-Managed / Block Hours', accent:'#7cbf5a', sub:'Block hours cover labor (onsite or remote) · products as needed', m365:'premium', fullStack:false, model:'block' }
+];
+
+function readEnv(){
+  const g = id => +document.getElementById(id).value||0;
+  const env = {
+    loc:g('i-loc'), full:g('i-full'), remote:g('i-remote'),
+    laptops:g('i-laptops'), desktops:g('i-desktops'), servers:g('i-servers'),
+    premium:g('i-premium'), standard:g('i-standard'), apps:g('i-apps'), exchange:g('i-exchange'),
+    hav:g('i-hav'), hsiem:g('i-hsiem'), hm365:g('i-hm365'), hsat:g('i-hsat'), pp:g('i-pp'), duo:g('i-duo'),
+    ds:g('i-ds'), veeamLic:g('i-veeam-lic'), veeamTb:g('i-veeam-tb'), axSrv:g('i-axcient-srv'), axWs:g('i-axcient-ws'),
+    handsets:g('i-handsets'), ext:g('i-ext'), text:g('i-text'), fax:g('i-fax'), toll:g('i-toll'),
+    onsite2:g('i-onsite2'), block3:g('i-block3')
+  };
+  env.totalUsers = env.full + env.remote;
+  env.allDev = env.laptops + env.desktops + env.servers;
+  return env;
+}
+
+function autoMirror(){
+  const g = id => +document.getElementById(id).value||0;
+  const full=g('i-full'), remote=g('i-remote'), totalUsers=full+remote;
+  const allDev=g('i-laptops')+g('i-desktops')+g('i-servers');
+  if(!overridden.premium && !focused.premium) document.getElementById('i-premium').value = totalUsers;
+  const totalO365 = g('i-premium')+g('i-standard')+g('i-apps')+g('i-exchange');
+  if(!overridden.hav   && !focused.hav)   document.getElementById('i-hav').value   = allDev;
+  if(!overridden.hsiem && !focused.hsiem) document.getElementById('i-hsiem').value = allDev;
+  if(!overridden.hm365 && !focused.hm365) document.getElementById('i-hm365').value = totalUsers;
+  if(!overridden.hsat  && !focused.hsat)  document.getElementById('i-hsat').value  = totalUsers;
+  if(!overridden.pp    && !focused.pp)    document.getElementById('i-pp').value    = totalO365;
+  if(!overridden.duo   && !focused.duo)   document.getElementById('i-duo').value   = allDev;
+  if(!overridden.ds    && !focused.ds)    document.getElementById('i-ds').value    = totalO365>0 ? totalO365+1 : 0;
+}
+
+function baseProductRows(env, tier){
+  const rows = [];
+  const totalO365 = env.premium+env.standard+env.apps+env.exchange;
+  if(env.loc>0)   rows.push({cat:'Infrastructure', name:'SonicWall Firewall', qty:env.loc, unit:165});
+  if(env.hav>0)   rows.push({cat:'Security', name:'Huntress EDR', qty:env.hav, unit:6});
+  if(env.hsiem>0) rows.push({cat:'Security', name:'Huntress SIEM + SOC', qty:env.hsiem, unit:3});
+  if(env.hm365>0) rows.push({cat:'Security', name:'Huntress M365 + SOC', qty:env.hm365, unit:2});
+  if(env.pp>0)    rows.push({cat:'Security', name:'Proofpoint Email Security', qty:env.pp, unit:3.50});
+  const m365label = tier.m365==='premium' ? 'M365 Business Premium' : 'M365 Business Standard';
+  const m365unit  = tier.m365==='premium' ? 23.10 : 15.00;
+  if(env.premium>0)  rows.push({cat:'Microsoft 365', name:m365label, qty:env.premium, unit:m365unit});
+  if(env.standard>0) rows.push({cat:'Microsoft 365', name:'M365 Business Standard', qty:env.standard, unit:15.00});
+  if(env.apps>0)     rows.push({cat:'Microsoft 365', name:'M365 Apps for Business', qty:env.apps, unit:8.00});
+  if(env.exchange>0) rows.push({cat:'Microsoft 365', name:'Exchange Online', qty:env.exchange, unit:5.00});
+  if(totalO365>0)    rows.push({cat:'Microsoft 365', name:'Microsoft Azure Entra ID', qty:1, unit:8});
+  if(env.veeamLic>0) rows.push({cat:'Backup', name:'Veeam License', qty:env.veeamLic, unit:20});
+  if(env.veeamTb>0)  rows.push({cat:'Backup', name:'Veeam Storage', qty:env.veeamTb, unit:50});
+  if(env.axSrv>0)    rows.push({cat:'Backup', name:'Axcient (Servers)', qty:env.axSrv, unit:150});
+  if(env.axWs>0)     rows.push({cat:'Backup', name:'Axcient (Workstations)', qty:env.axWs, unit:30});
+  if(env.handsets>0) rows.push({cat:'Voice', name:'Handsets', qty:env.handsets, unit:239});
+  if(env.ext>0)      rows.push({cat:'Voice', name:'Extensions', qty:env.ext, unit:45});
+  if(env.text>0)     rows.push({cat:'Voice', name:'Text', qty:env.text, unit:30});
+  if(env.fax>0)      rows.push({cat:'Voice', name:'Fax', qty:env.fax, unit:45});
+  if(env.toll>0)     rows.push({cat:'Voice', name:'Toll Number', qty:env.toll, unit:30});
+  return rows;
+}
+
+function optionalRows(env){
+  const opt = [];
+  if(env.duo>0)  opt.push({name:'Duo MFA', qty:env.duo, unit:3});
+  if(env.hsat>0) opt.push({name:'Huntress Security Awareness Training', qty:env.hsat, unit:2.50});
+  if(env.ds>0)   opt.push({name:'DropSuite Cloud Backup', qty:env.ds, unit:3});
+  return opt;
+}
+
+function rateStr(key, def){
+  const v = savedPrices[key];
+  return (v!==undefined && v!=='') ? v : def.toFixed(2);
+}
+
+function buildTier(env, tier){
+  const rows = [];
+  const optListed = [];
+
+  if(tier.model==='full'){
+    if(env.full>0)   rows.push({cat:'Managed IT Support', name:'Managed IT \u2014 Fully Managed User', qty:env.full, editable:true, key:'t1-full', def:110});
+    if(env.remote>0) rows.push({cat:'Managed IT Support', name:'Managed IT \u2014 Remote User', qty:env.remote, editable:true, key:'t1-remote', def:85});
+    rows.push({cat:'Support', name:'Onsite Support', included:true, qty:'Unlimited', priceCell:'-', monthlyCell:'Included'});
+    rows.push({cat:'Support', name:'Remote Support', included:true, qty:'Unlimited', priceCell:'-', monthlyCell:'Included'});
+  } else if(tier.model==='remote'){
+    if(env.totalUsers>0) rows.push({cat:'Managed IT Support', name:'Remote-Managed User', qty:env.totalUsers, editable:true, key:'t2-remote', def:85});
+    rows.push({cat:'Support', name:'Remote Support', included:true, qty:'Unlimited', priceCell:'-', monthlyCell:'Included'});
+    if(env.onsite2>0){
+      rows.push({cat:'Support', name:'Onsite Hours (recurring)', qty:env.onsite2, editable:true, key:'t2-onsite', def:140});
+      rows.push({cat:'Support', name:'Overage beyond allotment', note:'$185/hr', noteRow:true});
+    } else {
+      rows.push({cat:'Support', name:'Onsite Support', included:true, qty:'as-needed', priceCell:'$185/hr', monthlyCell:'as used'});
+    }
+  } else if(tier.model==='block'){
+    if(env.block3>0){
+      rows.push({cat:'Support', name:'Block Hours \u2014 Allotment (onsite/remote)', qty:env.block3, editable:true, key:'t3-block', def:140});
+      rows.push({cat:'Support', name:'Overage beyond allotment', note:'$185/hr', noteRow:true});
+    } else {
+      rows.push({cat:'Support', name:'Block Hours', included:true, qty:0, priceCell:'-', monthlyCell:'set hours above'});
+    }
+  }
+
+  baseProductRows(env, tier).forEach(r=>rows.push(r));
+
+  const opts = optionalRows(env);
+  opts.forEach(o=>optListed.push(o));
+
+  const order=['Managed IT Support','Support','Infrastructure','Security','Microsoft 365','Backup','Voice'];
+  rows.sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat));
+
+  let html='', curCat='', monthly=0;
+  rows.forEach(row=>{
+    if(row.cat!==curCat){ curCat=row.cat; html+=`<tr class="cat-row"><td colspan="4">${row.cat}</td></tr>`; }
+    if(row.noteRow){
+      html+=`<tr class="note-row"><td colspan="3">${row.name}: ${row.note}</td><td>&mdash;</td></tr>`;
+      return;
+    }
+    if(row.included){
+      html+=`<tr><td>${row.name}</td><td class="incl">${row.qty}</td><td class="incl">${row.priceCell}</td><td class="incl">${row.monthlyCell}</td></tr>`;
+      return;
+    }
+    let unitCell, rowTotal;
+    if(row.editable){
+      const disp = rateStr(row.key, row.def);
+      rowTotal = (typeof row.qty==='number'? row.qty:0) * parseFmt(disp);
+      unitCell = `<input class="editable-price" data-key="${row.key}" data-qty="${row.qty}" value="${disp}" type="text">`;
+    } else {
+      rowTotal = row.qty * row.unit;
+      unitCell = fmt(row.unit);
+    }
+    monthly += rowTotal;
+    html+=`<tr><td>${row.name}</td><td>${row.qty}</td><td>${unitCell}</td><td>${fmt(rowTotal)}</td></tr>`;
+  });
+
+  if(optListed.length){
+    html+=`<tr class="cat-row"><td colspan="4">Optional Add-Ons (not included in total)</td></tr>`;
+    optListed.forEach(o=>{
+      html+=`<tr class="opt-row"><td>${o.name} (optional)</td><td>${o.qty}</td><td>${fmt(o.unit)}</td><td>${fmt(o.qty*o.unit)}</td></tr>`;
+    });
+  }
+
+  return { html, monthly };
+}
+
+function renderQuotes(env){
+  const container = document.getElementById('quotes');
+  let out='';
+  TIERS.forEach(tier=>{
+    const badge = tier.key==='t1' ? '&#9733; Recommended' : '';
+    out += `<div class="card" id="q-${tier.key}">
+      <div class="card-head" style="background:${tier.accent};">${tier.name}${badge?` <span style="float:right;font-weight:700;font-size:8px;opacity:.9">${badge}</span>`:''}</div>
+      <div class="card-body">
+      <div class="qsub">${tier.sub}</div>
+      <table class="qt"><thead><tr>
+        <th style="width:46%">Service</th><th style="width:12%;text-align:right">Qty</th>
+        <th style="width:20%;text-align:right">Unit Price</th><th style="width:22%;text-align:right">Monthly</th>
+      </tr></thead><tbody id="${tier.key}-tbody"></tbody></table>
+      <table class="qt" style="margin-top:6px;"><tbody>
+        <tr class="cat-row"><td colspan="4">One-Time / Onboarding</td></tr>
+        <tr><td>Onboarding / Setup Labor</td><td style="text-align:right">1</td>
+          <td style="text-align:right"><input class="editable-price" id="${tier.key}-labor-price" data-qty="1" value="0.00" type="text"></td>
+          <td style="text-align:right;font-family:'Montserrat',sans-serif;font-weight:600;color:#4e9e34" id="${tier.key}-labor-total">$0.00</td></tr>
+      </tbody></table>
+      <div class="totals"><div class="totals-wrap">
+        <div class="totals-row1">
+          <div class="total-cell"><div class="t-label">Monthly Recurring</div><div class="t-amount" id="${tier.key}-monthly">$0.00</div><div class="t-note">Per month</div></div>
+          <div class="total-cell secondary"><div class="t-label">One-Time</div><div class="t-amount" id="${tier.key}-onetime">$0.00</div><div class="t-note">Due at signing</div></div>
+        </div>
+        <div class="totals-row2"><div class="total-cell-wide"><div class="t-label" style="color:rgba(255,255,255,0.8)">First-Month Total</div><div class="t-amount" id="${tier.key}-total" style="color:#fff">$0.00</div><div class="t-note">Monthly + One-Time</div></div></div>
+      </div></div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = out;
+
+  TIERS.forEach(tier=>{
+    const b = buildTier(env, tier);
+    document.getElementById(tier.key+'-tbody').innerHTML = b.html;
+    if(!laborManual[tier.key]){
+      document.getElementById(tier.key+'-labor-price').value = b.monthly.toFixed(2);
+      document.getElementById(tier.key+'-labor-total').textContent = fmt(b.monthly);
+    } else {
+      document.getElementById(tier.key+'-labor-total').textContent = fmt(parseFmt(document.getElementById(tier.key+'-labor-price').value));
+    }
+    attachTierListeners(tier);
+    recomputeTier(tier.key);
+  });
+}
+
+function attachTierListeners(tier){
+  document.querySelectorAll(`#${tier.key}-tbody .editable-price`).forEach(el=>{
+    el.addEventListener('input', function(){
+      savedPrices[this.dataset.key] = this.value;
+      const price=parseFmt(this.value)||0, qty=parseInt(this.dataset.qty)||0;
+      this.closest('tr').querySelector('td:last-child').textContent = fmt(price*qty);
+      recomputeTier(tier.key);
+      debouncedSave();
+    });
+  });
+  const lp = document.getElementById(tier.key+'-labor-price');
+  lp.addEventListener('focus', ()=> laborManual[tier.key]=true);
+  lp.addEventListener('input', function(){
+    if(this.value==='') laborManual[tier.key]=false;
+    document.getElementById(tier.key+'-labor-total').textContent = fmt(parseFmt(this.value));
+    recomputeTier(tier.key);
+    debouncedSave();
+  });
+}
+
+function recomputeTier(key){
+  let monthly=0;
+  document.querySelectorAll(`#${key}-tbody tr:not(.cat-row)`).forEach(tr=>{
+    if(tr.classList.contains('opt-row')||tr.classList.contains('note-row')) return;
+    const last=tr.querySelector('td:last-child');
+    if(last){ const t=last.textContent.trim(); if(t.charAt(0)==='$') monthly += parseFmt(t); }
+  });
+  if(!laborManual[key]){
+    document.getElementById(key+'-labor-price').value = monthly.toFixed(2);
+    document.getElementById(key+'-labor-total').textContent = fmt(monthly);
+  }
+  const labor = parseFmt(document.getElementById(key+'-labor-price').value)||0;
+  document.getElementById(key+'-monthly').textContent = fmt(monthly);
+  document.getElementById(key+'-onetime').textContent = fmt(labor);
+  document.getElementById(key+'-total').textContent = fmt(monthly + labor);
+  const idx = key==='t1'?1:key==='t2'?2:3;
+  const cp = document.getElementById('c-price-'+idx);
+  if(cp) cp.textContent = fmt0(monthly) + '/mo';
+}
+
+function chk(){ return '<span class="chk">&#10003;</span>'; }
+function dash(){ return '<span class="dash">&mdash;</span>'; }
+function txt(t){ return '<span class="txtcell">'+t+'</span>'; }
+function optcell(price){ return '<span class="opt">Optional +'+fmt0(price)+'/mo</span>'; }
+
+function buildCompare(env){
+  const body = document.getElementById('compare-body');
+  const totalO365 = env.premium+env.standard+env.apps+env.exchange;
+  const rows = [];
+  const band = t => rows.push({band:t});
+  const r = (label,a,b,c) => rows.push({label,a,b,c});
+
+  band('Support & Management');
+  r('Onsite Support', txt('Unlimited'), txt('$140/hr'), txt('Block hrs'));
+  r('Remote Support', txt('Unlimited'), txt('Unlimited'), txt('Block hrs'));
+  r('Help Desk / Ticketing', chk(), chk(), chk());
+  r('vCIO Services', chk(), chk(), chk());
+  r('Access to Projects Team', chk(), chk(), chk());
+  r('Monitored & Managed Firewall & Network', chk(), chk(), chk());
+  if(totalO365>0) r('Monitored & Managed Office 365', chk(), chk(), dash());
+
+  band('Monitoring');
+  if(env.laptops+env.desktops>0) r('PC Monitoring', chk(), chk(), chk());
+  if(env.servers>0){ r('Server Monitoring', chk(), chk(), chk()); r('Backup Testing & Monitoring', chk(), chk(), chk()); }
+  if(env.loc>0){ r('Network Monitoring', chk(), chk(), chk()); r('Firewall Monitoring', chk(), chk(), chk()); }
+
+  band('Security');
+  if(env.hav>0)   r('Endpoint Detection & Response (EDR)', chk(), chk(), chk());
+  if(env.hsiem>0) r('24/7 SOC / SIEM Monitoring', chk(), chk(), chk());
+  if(env.pp>0)    r('Email Security (Proofpoint)', chk(), chk(), chk());
+  if(env.duo>0)   r('Multi-Factor Authentication (Duo)', optcell(env.duo*3), optcell(env.duo*3), optcell(env.duo*3));
+  if(env.hsat>0)  r('Security Awareness Training', optcell(env.hsat*2.5), optcell(env.hsat*2.5), optcell(env.hsat*2.5));
+  if(env.ds>0)    r('Cloud Backup (DropSuite)', optcell(env.ds*3), optcell(env.ds*3), optcell(env.ds*3));
+
+  band('Microsoft 365');
+  if(totalO365>0) r('Microsoft 365 Licensing', txt('Business Premium'), txt('As needed'), txt('As needed'));
+
+  let html='';
+  rows.forEach(row=>{
+    if(row.band){ html+=`<tr class="cat-band"><td colspan="4">${row.band}</td></tr>`; return; }
+    html+=`<tr><td class="feat">${row.label}</td><td>${row.a}</td><td>${row.b}</td><td>${row.c}</td></tr>`;
+  });
+  body.innerHTML = html;
+}
+
+function calc(){
+  autoMirror();
+  const env = readEnv();
+  buildCompare(env);
+  renderQuotes(env);
+}
+
+/* ---------- persistence ---------- */
+const STORAGE_KEY = 'nettech-multiquote-v1';
+function collectState(){
+  const data = { fields:{}, savedPrices:savedPrices, laborManual:laborManual };
+  document.querySelectorAll('input').forEach(el=>{ if(el.id && el.type!=='file') data.fields[el.id]=el.value; });
+  data.overridden = overridden;
+  return data;
+}
+function applyState(data){
+  if(!data) return;
+  if(data.fields) Object.keys(data.fields).forEach(id=>{ const el=document.getElementById(id); if(el) el.value=data.fields[id]; });
+  if(data.savedPrices) savedPrices = data.savedPrices;
+  if(data.laborManual) laborManual = Object.assign({t1:false,t2:false,t3:false}, data.laborManual);
+  if(data.overridden) Object.assign(overridden, data.overridden);
+  calc();
+}
+function saveState(){
+  const json = JSON.stringify(collectState());
+  try{ if(window.storage){ window.storage.set(STORAGE_KEY, json, false); return; } }catch(e){}
+  try{ localStorage.setItem(STORAGE_KEY, json); }catch(e){}
+}
+async function loadState(){
+  let data=null;
+  try{ if(window.storage){ const res=await window.storage.get(STORAGE_KEY,false); if(res&&res.value) data=JSON.parse(res.value); } }catch(e){}
+  if(!data){ try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) data=JSON.parse(raw); }catch(e){} }
+  if(data) applyState(data); else calc();
+}
+let saveTimer=null;
+function debouncedSave(){ if(saveTimer) clearTimeout(saveTimer); saveTimer=setTimeout(saveState,300); }
+
+document.querySelectorAll('input[type="number"]').forEach(el=>el.addEventListener('input',()=>{ calc(); debouncedSave(); }));
+document.querySelectorAll('.client-bar input').forEach(el=>el.addEventListener('input',debouncedSave));
+
+window.clearState = function(){
+  if(!confirm('Clear all fields and start fresh?')) return;
+  try{ if(window.storage) window.storage.delete(STORAGE_KEY,false); }catch(e){}
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  document.querySelectorAll('.client-bar input').forEach(el=>el.value='');
+  document.getElementById('i-loc').value=1;
+  document.getElementById('i-block3').value=7;
+  ['i-full','i-remote','i-laptops','i-desktops','i-servers','i-premium','i-standard','i-apps','i-exchange',
+   'i-hav','i-hsiem','i-hm365','i-hsat','i-pp','i-duo','i-ds','i-veeam-lic','i-veeam-tb','i-axcient-srv','i-axcient-ws',
+   'i-handsets','i-ext','i-text','i-fax','i-toll','i-onsite2'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=0; });
+  Object.keys(overridden).forEach(k=>overridden[k]=false);
+  Object.keys(focused).forEach(k=>focused[k]=false);
+  savedPrices = {}; laborManual={t1:false,t2:false,t3:false};
+  calc();
+};
+
+window.saveData = function(){
+  const payload = collectState(); payload.savedAt = new Date().toISOString();
+  const company=(document.getElementById('f-company').value||'Estimate').trim();
+  const date=new Date().toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'}).replace(/\//g,'-');
+  const filename=company+' - '+date+'.json';
+  const jsonStr=JSON.stringify(payload,null,2);
+  const btn=document.getElementById('save-btn');
+  function flash(m){ btn.textContent=m; setTimeout(()=>btn.textContent='Save',2000); }
+  try{
+    const file=new File([jsonStr],filename,{type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:filename}).then(()=>flash('Saved!')).catch(err=>{ if(err&&err.name==='AbortError')return; dl(); });
+      return;
+    }
+  }catch(e){}
+  dl();
+  function dl(){
+    const blob=new Blob([jsonStr],{type:'application/json'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000); flash('Saved!');
+  }
+};
+
+window.loadData = function(event){
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{ applyState(JSON.parse(e.target.result)); saveState();
+      const btn=document.getElementById('load-btn'); btn.textContent='Loaded!'; setTimeout(()=>btn.textContent='Load',2000);
+    }catch(err){ alert('Could not read that file. Make sure it is an estimate .json file.'); }
+    event.target.value='';
+  };
+  reader.readAsText(file);
+};
+
+loadState();
+</script>
+</body>
+</html>
